@@ -1,4 +1,4 @@
-# Atypon UI Resource Override Cusmized Extention
+# Atypon UI Resource Override Customized Extention
 
-### This is still under development please stay tuned
+**This is still under development please stay tuned**
 
