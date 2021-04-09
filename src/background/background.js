@@ -5,24 +5,24 @@
 
     const simpleError = bgapp.util.simpleError;
 
-    // Called when the user clicks on the browser action icon.
-    chrome.browserAction.onClicked.addListener(function() {
-        // open or focus options page.
-        const optionsUrl = chrome.runtime.getURL("src/ui/devtoolstab.html");
-        chrome.tabs.query({}, function(extensionTabs) {
-            let found = false;
-            for (let i = 0, len = extensionTabs.length; i < len; i++) {
-                if (optionsUrl === extensionTabs[i].url) {
-                    found = true;
-                    chrome.tabs.update(extensionTabs[i].id, {selected: true});
-                    break;
-                }
-            }
-            if (found === false) {
-                chrome.tabs.create({url: optionsUrl});
-            }
-        });
-    });
+    // // Called when the user clicks on the browser action icon.
+    // chrome.browserAction.onClicked.addListener(function() {
+    //     // open or focus options page.
+    //     const optionsUrl = chrome.runtime.getURL("src/ui/devtoolstab.html");
+    //     chrome.tabs.query({}, function(extensionTabs) {
+    //         let found = false;
+    //         for (let i = 0, len = extensionTabs.length; i < len; i++) {
+    //             if (optionsUrl === extensionTabs[i].url) {
+    //                 found = true;
+    //                 chrome.tabs.update(extensionTabs[i].id, {selected: true});
+    //                 break;
+    //             }
+    //         }
+    //         if (found === false) {
+    //             chrome.tabs.create({url: optionsUrl});
+    //         }
+    //     });
+    // });
 
     const syncAllInstances = function() {
         // Doing this weird dance because I cant figure out how to
@@ -38,6 +38,7 @@
 
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.action === "saveDomain") {
+            localStorage['shiiit'] = JSON.stringify(request.data)
             bgapp.mainStorage.put(request.data)
                 .then(syncAllInstances)
                 .catch(simpleError);

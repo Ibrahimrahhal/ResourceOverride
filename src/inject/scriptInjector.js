@@ -32,6 +32,10 @@
         });
     };
 
+    var isAtyponSite = function() {
+        return Boolean(Array.from(document.getElementsByTagName("link")).map(elm=>elm.href).find(path=>path.includes('releasedAssets')));
+    }
+
     chrome.runtime.sendMessage({action: "getDomains"}, function(domains) {
         domains = domains || [];
         domains.forEach(function(domain) {
@@ -49,13 +53,16 @@
         });
     });
 
-    chrome.runtime.onMessage.addListener(function(msg) {
+    chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
         if (msg.action === 'log') {
             var logStyle = "color: #007182; font-weight: bold;";
             if (msg.important) {
                 logStyle += "background: #AAFFFF;";
             }
             console.log("%c[Resource Override] " + msg.message, logStyle);
+        } else if(msg.action === 'isAtyponSite') {
+            sendResponse({isAtyponSite: isAtyponSite()});
         }
     });
+
 })();
