@@ -85,6 +85,15 @@
             sendResponse(match(request.domainUrl, request.windowUrl).matched);
         } else if (request.action === "extractMimeType") {
             sendResponse(bgapp.extractMimeType(request.fileName, request.file));
+        } else if(request.action === "getSiteReport") {
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                var activeTab = tabs[0];
+                chrome.tabs.sendMessage(activeTab.id, {"action": "isAtyponSite"}, ({isAtyponSite}) => {
+                    bgapp.mainStorage.getAll().then(function(domains) {
+                        sendResponse(isAtyponSite, domains || []);
+                    }).catch(simpleError);
+                });
+            });
         }
 
         // !!!Important!!! Need to return true for sendResponse to work.

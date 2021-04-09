@@ -33,7 +33,20 @@
     };
 
     var isAtyponSite = function() {
-        return Boolean(Array.from(document.getElementsByTagName("link")).map(elm=>elm.href).find(path=>path.includes('releasedAssets')));
+        const resourcePath = Array.from(document.getElementsByTagName("link")).map(elm=>elm.href).find(path=>path.includes('releasedAssets'));
+        if(!resourcePath)
+            return { isAtyponSite: false };
+        const releasedAssetsPath = resourcePath.split('/').reduce((prev, current) => {
+            if(prev.includes('releasedAssets'))
+                return prev
+            return `${prev}/${current}`;
+        }, '');
+        const productName = releasedAssetsPath.split('/').reverse()[1];
+        return {
+            isAtyponSite: true,
+            releasedAssets: releasedAssetsPath,
+            product: productName
+        };
     }
 
     chrome.runtime.sendMessage({action: "getDomains"}, function(domains) {
