@@ -38,11 +38,11 @@
 
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (request.action === "saveDomain") {
-            localStorage['shiiit'] = JSON.stringify(request.data)
             bgapp.mainStorage.put(request.data)
                 .then(syncAllInstances)
                 .catch(simpleError);
             bgapp.ruleDomains[request.data.id] = request.data;
+            sendResponse();
         } else if (request.action === "getDomains") {
             bgapp.mainStorage.getAll().then(function(domains) {
                 sendResponse(domains || []);
@@ -90,7 +90,12 @@
                 var activeTab = tabs[0];
                 chrome.tabs.sendMessage(activeTab.id, {"action": "isAtyponSite"}, ({isAtyponSite}) => {
                     bgapp.mainStorage.getAll().then(function(domains) {
-                        sendResponse(isAtyponSite, domains || []);
+                        if(isAtyponSite.host) {
+                            domains = domains.find((domain) => {
+                                return domain.matchUrl.includes(isAtyponSite.host);
+                            });
+                        }
+                        sendResponse({isAtyponSite, domains: domains || []});
                     }).catch(simpleError);
                 });
             });
