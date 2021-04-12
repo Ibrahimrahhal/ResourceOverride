@@ -5,24 +5,24 @@
 
     const simpleError = bgapp.util.simpleError;
 
-    // Called when the user clicks on the browser action icon.
-    chrome.browserAction.onClicked.addListener(function() {
-        // open or focus options page.
-        const optionsUrl = chrome.runtime.getURL("src/ui/devtoolstab.html");
-        chrome.tabs.query({}, function(extensionTabs) {
-            let found = false;
-            for (let i = 0, len = extensionTabs.length; i < len; i++) {
-                if (optionsUrl === extensionTabs[i].url) {
-                    found = true;
-                    chrome.tabs.update(extensionTabs[i].id, {selected: true});
-                    break;
-                }
-            }
-            if (found === false) {
-                chrome.tabs.create({url: optionsUrl});
-            }
-        });
-    });
+    // // Called when the user clicks on the browser action icon.
+    // chrome.browserAction.onClicked.addListener(function() {
+    //     // open or focus options page.
+    //     const optionsUrl = chrome.runtime.getURL("src/ui/devtoolstab.html");
+    //     chrome.tabs.query({}, function(extensionTabs) {
+    //         let found = false;
+    //         for (let i = 0, len = extensionTabs.length; i < len; i++) {
+    //             if (optionsUrl === extensionTabs[i].url) {
+    //                 found = true;
+    //                 chrome.tabs.update(extensionTabs[i].id, {selected: true});
+    //                 break;
+    //             }
+    //         }
+    //         if (found === false) {
+    //             chrome.tabs.create({url: optionsUrl});
+    //         }
+    //     });
+    // });
 
     const syncAllInstances = function() {
         // Doing this weird dance because I cant figure out how to
@@ -42,6 +42,7 @@
                 .then(syncAllInstances)
                 .catch(simpleError);
             bgapp.ruleDomains[request.data.id] = request.data;
+            sendResponse();
         } else if (request.action === "getDomains") {
             bgapp.mainStorage.getAll().then(function(domains) {
                 sendResponse(domains || []);
@@ -84,6 +85,20 @@
             sendResponse(match(request.domainUrl, request.windowUrl).matched);
         } else if (request.action === "extractMimeType") {
             sendResponse(bgapp.extractMimeType(request.fileName, request.file));
+        } else if(request.action === "getSiteReport") {
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                var activeTab = tabs[0];
+                chrome.tabs.sendMessage(activeTab.id, {"action": "isAtyponSite"}, ({isAtyponSite}) => {
+                    bgapp.mainStorage.getAll().then(function(domains) {
+                        if(isAtyponSite.host) {
+                            domains = domains.find((domain) => {
+                                return domain.matchUrl.includes(isAtyponSite.host);
+                            });
+                        }
+                        sendResponse({isAtyponSite, domains: domains || []});
+                    }).catch(simpleError);
+                });
+            });
         }
 
         // !!!Important!!! Need to return true for sendResponse to work.
