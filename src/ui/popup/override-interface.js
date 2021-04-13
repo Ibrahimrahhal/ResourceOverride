@@ -20,11 +20,11 @@ function reApplyConfigs(styleGuideLink, releasedAssetsLink, productName, tabUrl,
 
 }
 function buildRule(optionName, styleGuideLink, releasedAssetsLink, productName, availableOptions) {
-    const transformedLinks = Object.entries(availableOptions).map(([key, value]) => value).find(option=>option.name == optionName).apply(releasedAssetsLink, styleGuideLink, productName);
+    const transformedLinks = Object.entries(availableOptions).map(([key, value]) => value).find(option=>option.name == optionName).apply(releasedAssetsLink, styleGuideLink || "http://localhost:8080", productName);
     return {
         type: "normalOverride",
         match: transformedLinks.from,
-        replace: "http://localhost:8080" || transformedLinks.to,
+        replace: transformedLinks.to,
         on: true,
         resourceType: optionName
     };
