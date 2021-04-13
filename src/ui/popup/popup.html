@@ -1,5 +1,36 @@
-<h1>hi</h1>
-<button data-type="styles">styles</button>
-<button data-type="scripts">styles</button>
-
-<script src="popup.js"></script>
+<html>
+    <head>
+        <link href="popup.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <header class="header">
+            <img src="logo.svg" class="header__logo" /> <span class="header__title">Override Resources Atypon</span>
+        </header>
+        <main>
+           <div class="not-available hidden">
+                <div class="not-available__animation"></div>
+                <h2 class="info__title not-available__title">
+                    Taking A Nap
+                </h2>
+                <div class="seperator" style="width: 70%"></div>
+                <p class="info__description">
+                    Looks like this site doesn't belong to Atypon. <br>I'll be up when need me
+                </p>
+           </div>
+           <div class="thinking">
+                <div class="thinking__animation"></div>
+                <h2 class="info__title thinking__title">
+                    Thinking
+                </h2>
+                <div class="seperator" style="width: 70%"></div>
+                <p class="info__description">
+                    I'm currently doing some super doper complex stuff. <br> Please Wait
+                </p>
+            </div>
+        </main>
+        <script src="../../../lib/lottie.js"></script>
+        <script src="popup-ui.js"></script>
+        <script src="override-interface.js"></script>
+        <script src="popup.js"></script>
+    </body>
+</html>
