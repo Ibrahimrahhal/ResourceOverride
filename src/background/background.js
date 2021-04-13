@@ -95,7 +95,7 @@
                                 return domain.matchUrl.includes(isAtyponSite.host);
                             });
                         }
-                        sendResponse({isAtyponSite, domains: domains || []});
+                        sendResponse({siteReport: isAtyponSite, domains: domains });
                     }).catch(simpleError);
                 });
             });

@@ -1,7 +1,8 @@
 
-const availableOption = {
+const availableOptions = {
     styles: {
         name: "Styles",
+        description: "Main bundle css file",
         apply: (resleasedAssetsUrl, styleguideUrl, product) => {
             return { 
                 from: `${resleasedAssetsUrl}/css/build*.css`, 
@@ -11,6 +12,7 @@ const availableOption = {
     },
     scripts: {
         name: "Scripts",
+        description: "Main bundle javascript file",
         apply: (resleasedAssetsUrl, styleguideUrl, product) => {
             return { 
                 from: `${resleasedAssetsUrl}/js/main*.js`, 
@@ -22,56 +24,51 @@ const availableOption = {
 
 
 window.onload = () => {
-    chrome.runtime.sendMessage({action: "getSiteReport"},
-    function (response) {
-        document.getElementsByTagName("h1")[0].innerHTML = JSON.stringify(response);
-        window["infoAtypon"] = response.isAtyponSite;
+    chrome.runtime.sendMessage({action: "getSiteReport"}, function (response) {
+        window["infoAtypon"] = response.siteReport;
         window["currentConfig"] = response.domains || { rules: []};
-        setIntialUI(response.domains);
+        
+        if(infoAtypon.isAtyponSite) {
+            const uiWrapper = buildUI(buildUIConfig());
+            hideLoading();
+            setUI(uiWrapper);
+            initFormController();
+        } else {
+            hideLoading();
+            showNotAvailable();
+        }
     }
 );
-
-document.getElementsByTagName("button")[0].addEventListener("click", (e)=>{
-    e.target.classList.toggle("active");
-    reApplyConfigs("shit", infoAtypon.releasedAssets, infoAtypon.product, infoAtypon.host, currentConfig);
-})
 }
 
-function setIntialUI(currentConfig) {
-    currentConfig.rules.forEach((rule) => {
-        document.querySelector(`[data-type="${rule.resourceType}"]`).classList.toggle("active");
-    });
+function buildUIConfig(){
+    return {
+        productName: infoAtypon.product,
+        siteEnv: getEnvType(infoAtypon.host),
+        availableOptions: Object.keys(availableOptions).map((type) => {
+            return {
+                type,
+                ...availableOptions[type],
+                checked: currentConfig.rules.find(rule=>rule.resourceType===availableOptions[type].name)
+            };
+        })
+    }
 }
-function reApplyConfigs(sg, assetsurl, prod, url, currentConfig) {
-    const rules = Array.from(document.querySelectorAll("button.active")).map((button) => {
-        const type = button.getAttribute("data-type");
-        return buildRule(type, sg, assetsurl, prod);
-    });
-    const config = buildSiteConfig(rules, url);
-    chrome.runtime.sendMessage({action: "deleteDomain", id: currentConfig.id});
-    chrome.runtime.sendMessage({action: "saveDomain", data: config}, () => {
-        window["currentConfig"] = config;
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            chrome.tabs.update(tabs[0].id, {url: tabs[0].url});
+
+function initFormController() {
+    [...document.getElementsByTagName("input")].map(elm => elm.addEventListener("click", (e)=>{
+        reApplyConfigs(null, infoAtypon.releasedAssets, infoAtypon.product, infoAtypon.host, currentConfig, availableOptions).then((config) => {
+            window["currentConfig"] = config;
         });
-    });
+    }));;
 }
-function buildRule(type, sg, assetsurl, prod) {
-    const transformedLinks = availableOption[type].apply(assetsurl, sg, prod);
-    return {
-        type: "normalOverride",
-        match: transformedLinks.from,
-        replace: "https://www.facebook.com" || transformedLinks.to,
-        on: true,
-        resourceType: type
-    };
-}
-function buildSiteConfig(rules, url) {
-    return {
-        id: Date.now().toString(),
-        matchUrl: `*${url}/*`,
-        rules: rules,
-        on: true
-    };
+
+function getEnvType(host) {
+    try {
+        if(host.includes("literatumonline")) {
+            return host.split(".")[0].split("-")[1];
+        }
+    } finally { }
+    return "prod";
 }
 
