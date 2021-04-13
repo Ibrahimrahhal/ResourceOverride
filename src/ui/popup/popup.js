@@ -6,7 +6,7 @@ const availableOptions = {
         apply: (resleasedAssetsUrl, styleguideUrl, product) => {
             return { 
                 from: `${resleasedAssetsUrl}/css/build*.css`, 
-                to:`${styleguideUrl}/spec/products/${product}/releasedAssets/css/build.css`,
+                to:`${styleguideUrl}/specs/products/${product}/releasedAssets/css/build.css`,
             }
         }
     },
@@ -16,7 +16,7 @@ const availableOptions = {
         apply: (resleasedAssetsUrl, styleguideUrl, product) => {
             return { 
                 from: `${resleasedAssetsUrl}/js/main*.js`, 
-                to: `${styleguideUrl}/spec/products/${product}/releasedAssets/js/main.bundle.js`,
+                to: `${styleguideUrl}/specs/products/${product}/releasedAssets/js/main.bundle.js`,
             }
         }
     }
